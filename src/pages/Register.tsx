@@ -1,15 +1,19 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Alert, Button, Card, Field } from '../components/ui'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import AuthShell from '../components/AuthShell'
+import { Alert, Button, Field } from '../components/ui'
 import { useAuth } from '../context/AuthContext'
 
 export default function Register() {
-  const { register } = useAuth()
+  const { user, register } = useAuth()
   const navigate = useNavigate()
   const from = (useLocation().state as { from?: string } | null)?.from ?? '/services'
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [serverError, setServerError] = useState('')
+  const isBooking = from.startsWith('/services') || from.startsWith('/book')
+
+  if (user) return <Navigate to={from} replace />
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value })
 
@@ -28,23 +32,26 @@ export default function Register() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <Card>
-        <h1 className="text-2xl font-bold text-premium">Create your account</h1>
-        <p className="mt-1 text-sm text-slate-500">It only takes a minute.</p>
-        <form onSubmit={submit} className="mt-6 space-y-4">
-          {serverError && <Alert>{serverError}</Alert>}
-          <Field label="Full name" required value={form.name} onChange={set('name')} error={errors.name} />
-          <Field label="Email" type="email" required value={form.email} onChange={set('email')} />
-          <Field label="Phone" type="tel" required value={form.phone} onChange={set('phone')} error={errors.phone} />
-          <Field label="Password" type="password" required value={form.password} onChange={set('password')} error={errors.password} />
-          <Field label="Confirm password" type="password" required value={form.confirm} onChange={set('confirm')} error={errors.confirm} />
-          <Button type="submit" variant="fresh" className="w-full">Register</Button>
-        </form>
-        <p className="mt-6 text-center text-sm text-slate-500">
-          Already registered? <Link to="/login" state={{ from }} className="font-semibold text-primary hover:underline">Log in</Link>
-        </p>
-      </Card>
-    </div>
+    <AuthShell>
+      <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Create your account</h1>
+      <p className="mt-1 text-sm text-slate-500">It only takes a minute.</p>
+      <form onSubmit={submit} className="mt-6 space-y-4">
+        {isBooking && !serverError && <Alert type="info">Create an account to book your appointment. You will go straight back to booking afterwards.</Alert>}
+        {serverError && <Alert>{serverError}</Alert>}
+        <Field label="Full name" autoComplete="name" required value={form.name} onChange={set('name')} error={errors.name} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Email" type="email" autoComplete="email" required value={form.email} onChange={set('email')} />
+          <Field label="Phone" type="tel" autoComplete="tel" required value={form.phone} onChange={set('phone')} error={errors.phone} />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Password" type="password" autoComplete="new-password" required value={form.password} onChange={set('password')} error={errors.password} />
+          <Field label="Confirm password" type="password" autoComplete="new-password" required value={form.confirm} onChange={set('confirm')} error={errors.confirm} />
+        </div>
+        <Button type="submit" variant="fresh" className="w-full">Create account</Button>
+      </form>
+      <p className="mt-6 text-center text-sm text-slate-500">
+        Already registered? <Link to="/login" state={{ from }} className="font-semibold text-primary hover:underline">Log in</Link>
+      </p>
+    </AuthShell>
   )
 }

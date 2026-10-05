@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Single accent: change this one value to re-colour every selected / active state. */
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;
   --color-primary-soft: #eff6ff;
@@ -15,4 +16,20 @@
 
 body {
   @apply bg-slate-50 text-slate-800 antialiased;
+}
+
+/* Larger, easier-to-read toast alerts (Sonner) */
+[data-sonner-toaster] [data-sonner-toast] [data-title] { font-size: 1.0625rem; font-weight: 600; line-height: 1.4; }
+[data-sonner-toaster] [data-sonner-toast] [data-description] { font-size: 0.95rem; line-height: 1.5; margin-top: 0.125rem; }
+[data-sonner-toaster] [data-sonner-toast] [data-icon] { width: 24px; height: 24px; }
+[data-sonner-toaster] [data-sonner-toast] [data-icon] > svg { width: 24px; height: 24px; }
+
+/* Hide scrollbars on horizontal scrollers (still scrollable by touch, wheel, keys and arrow buttons) */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Visible keyboard focus ring on every interactive element */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }

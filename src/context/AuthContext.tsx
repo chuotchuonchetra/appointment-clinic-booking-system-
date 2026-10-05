@@ -1,11 +1,13 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
-export type Role = 'patient' | 'admin'
+export type Role = 'patient' | 'admin' | 'doctor'
 export interface User {
   name: string
   email: string
   phone?: string
   role: Role
+  /** For doctors: which dentist (data/mock providers) this account belongs to. */
+  providerId?: string
 }
 interface StoredUser extends User {
   password: string
@@ -13,7 +15,8 @@ interface StoredUser extends User {
 
 interface AuthState {
   user: User | null
-  login: (email: string, password: string, role?: Role) => string | null
+  /** One login for everyone: returns the signed-in user (check `role`) or an error message. */
+  login: (email: string, password: string) => { user?: User; error?: string }
   register: (name: string, email: string, phone: string, password: string) => string | null
   logout: () => void
 }
@@ -24,6 +27,12 @@ const SESSION_KEY = 'dental_session'
 
 // Demo admin account (frontend-only until a backend exists)
 const ADMIN: StoredUser = { name: 'Clinic Admin', email: 'admin@smile.com', password: 'admin123', role: 'admin' }
+const DOCTORS: StoredUser[] = [
+  { name: 'Dr. Sophea Chan', email: 'sophea@smile.com', password: 'doctor123', role: 'doctor', providerId: 'p1' },
+  { name: 'Dr. Vannak Sok', email: 'vannak@smile.com', password: 'doctor123', role: 'doctor', providerId: 'p2' },
+  { name: 'Dr. Mealea Kim', email: 'mealea@smile.com', password: 'doctor123', role: 'doctor', providerId: 'p3' },
+]
+const DEMO_PATIENT: StoredUser = { name: 'Demo Patient', email: 'patient@smile.com', phone: '+855 12 345 678', password: 'patient123', role: 'patient' }
 
 const read = <T,>(key: string, fallback: T): T => {
   try {
@@ -37,17 +46,17 @@ const read = <T,>(key: string, fallback: T): T => {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => read<User | null>(SESSION_KEY, null))
 
-  const startSession = ({ password: _p, ...u }: StoredUser) => {
+  const startSession = ({ password: _p, ...u }: StoredUser): User => {
     setUser(u)
     localStorage.setItem(SESSION_KEY, JSON.stringify(u))
+    return u
   }
 
-  const login: AuthState['login'] = (email, password, role = 'patient') => {
-    const all = [ADMIN, ...read<StoredUser[]>(USERS_KEY, [])]
-    const found = all.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password && u.role === role)
-    if (!found) return 'Incorrect email or password. Please try again or reset your password.'
-    startSession(found)
-    return null
+  const login: AuthState['login'] = (email, password) => {
+    const all = [ADMIN, ...DOCTORS, DEMO_PATIENT, ...read<StoredUser[]>(USERS_KEY, [])]
+    const found = all.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password)
+    if (!found) return { error: 'Incorrect email or password. Please try again or reset your password.' }
+    return { user: startSession(found) }
   }
 
   const register: AuthState['register'] = (name, email, phone, password) => {

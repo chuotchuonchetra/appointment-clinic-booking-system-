@@ -33,7 +33,7 @@ export default function ProvidersServices() {
           <tbody className="divide-y divide-slate-100">
             {services.map((s) => (
               <tr key={s.id}>
-                <td className="px-4 py-3">{s.icon} {s.name}</td>
+                <td className="px-4 py-3"><span className="inline-flex items-center gap-2"><s.icon className="h-4 w-4 text-primary" /> {s.name}</span></td>
                 <td className="px-4 py-3">{s.duration} min</td>
                 <td className="px-4 py-3 font-semibold text-fresh-dark">${s.price}</td>
               </tr>
