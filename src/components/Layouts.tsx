@@ -9,19 +9,21 @@ import { Button } from './ui'
 import { CLINIC, services } from '../data/mock'
 
 /** Nav link with a pill that slides between the active items. `pillId` keeps desktop and mobile pills separate. */
-function NavItem({ to, end, pillId, children }: { to: string; end?: boolean; pillId: string; children: ReactNode }) {
+function NavItem({ to, end, pillId, icon: Icon, highlight, children }: { to: string; end?: boolean; pillId: string; icon?: LucideIcon; highlight?: boolean; children: ReactNode }) {
   return (
     <NavLink
       to={to}
       end={end}
       className={({ isActive }) =>
-        `relative whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'text-primary' : 'text-slate-600 hover:text-slate-900'}`
+        `relative whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+          isActive ? 'text-primary' : highlight ? 'bg-primary-soft/70 text-primary ring-1 ring-primary/15 hover:bg-primary-soft' : 'text-slate-600 hover:text-slate-900'
+        }`
       }
     >
       {({ isActive }) => (
         <>
           {isActive && <motion.span layoutId={pillId} className="absolute inset-0 -z-0 rounded-lg bg-primary-soft" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
-          <span className="relative">{children}</span>
+          <span className="relative inline-flex h-5 items-center gap-1.5">{Icon && <Icon className="h-4 w-4" />}{children}</span>
         </>
       )}
     </NavLink>
@@ -147,7 +149,7 @@ export function PublicLayout() {
       <NavItem to="/services" pillId={pillId}>Services</NavItem>
       <NavItem to="/about" pillId={pillId}>About Us</NavItem>
       {user && <NavItem to="/my-appointments" pillId={pillId}>My Appointments</NavItem>}
-      {staffHome && <NavItem to={staffHome} pillId={pillId}>Dashboard</NavItem>}
+      {staffHome && <NavItem to={staffHome} pillId={pillId} icon={LayoutDashboard} highlight>Dashboard</NavItem>}
     </>
   )
   // Slimmer buttons once the header has shrunk (min-h-9! wins over the Button default).
