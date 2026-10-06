@@ -4,6 +4,7 @@ import { AdminLayout, DoctorLayout, PublicLayout, RequireAuth } from './componen
 import { AuthProvider } from './context/AuthContext'
 import { BookingProvider } from './context/BookingContext'
 import { NotificationProvider } from './context/NotificationContext'
+import About from './pages/About'
 import Confirmation from './pages/Confirmation'
 import Details from './pages/Details'
 import Feedback from './pages/Feedback'
@@ -41,6 +42,7 @@ export default function App() {
           <Routes>
             <Route element={<PublicLayout />}>
               <Route index element={<Home />} />
+              <Route path="about" element={<About />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
 

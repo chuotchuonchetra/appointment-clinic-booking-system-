@@ -153,7 +153,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     const patient = [toEmail(old.userEmail)]
     const out: NewNotice[] = []
 
-    const timeChanged = next.date !== old.date || next.time !== old.time
+    const timeChanged = next.date !== old.date || next.time !== old.time || next.providerId !== old.providerId
     const statusChanged = next.status !== old.status
 
     if (timeChanged) {
@@ -162,7 +162,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
           to: patient,
           type: 'info',
           title: 'Appointment time changed',
-          body: `Your ${d.service} was moved to ${d.when}.${next.status === 'confirmed' ? ' It is confirmed.' : ''}`,
+          body: `Your ${d.service} was moved to ${d.when} with ${d.dentist}.${next.status === 'confirmed' ? ' It is confirmed.' : ''}`,
           link: `/book/confirmation/${id}`,
           actor,
         })

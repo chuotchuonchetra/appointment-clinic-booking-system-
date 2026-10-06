@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Mail, NotebookPen, Phone } from 'lucide-react'
+import { Mail, NotebookPen, Phone, SearchX } from 'lucide-react'
 import { Button, Card, PageHeader, StatusBadge } from '../../components/ui'
+import { Avatar, EmptyState, SearchInput, Segmented } from '../../components/staff'
 import type { Appointment, Status } from '../../context/BookingContext'
 import { formatDate, getService } from '../../data/mock'
 import { startOf, useDoctor } from './useDoctor'
 
-const filters: ('all' | Status)[] = ['all', 'pending', 'confirmed', 'completed', 'cancelled']
+const filters: readonly ('all' | Status)[] = ['all', 'pending', 'confirmed', 'completed', 'cancelled']
 
 function NoteEditor({ a, onSave }: { a: Appointment; onSave: (note: string) => void }) {
   const [note, setNote] = useState(a.doctorNote ?? '')
@@ -41,35 +42,27 @@ export default function DoctorAppointments() {
   return (
     <>
       <PageHeader title="My patients" subtitle="Confirm bookings, complete visits and keep notes." />
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        {filters.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`min-h-10 rounded-full px-4 text-sm font-medium capitalize ${
-              filter === f ? 'bg-premium text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100'
-            }`}
-          >
-            {f} {f !== 'all' && <span className="opacity-60">({mine.filter((a) => a.status === f).length})</span>}
-          </button>
-        ))}
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search patient…"
-          className="ml-auto min-h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
+      <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <Segmented
+          options={filters}
+          value={filter}
+          onChange={setFilter}
+          counts={Object.fromEntries(filters.map((f) => [f, f === 'all' ? mine.length : mine.filter((a) => a.status === f).length]))}
         />
+        <SearchInput value={search} onChange={setSearch} placeholder="Search patient…" />
       </div>
 
       {rows.length === 0 ? (
-        <Card className="py-12 text-center text-slate-500">No appointments found.</Card>
+        <Card className="p-0"><EmptyState icon={SearchX} title="No appointments found" text="Try another filter or search term." /></Card>
       ) : (
         <div className="space-y-4">
           {rows.map((a) => (
-            <Card key={a.id} className="p-5">
+            <Card key={a.id} className="p-5 transition hover:shadow-md">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-semibold">{a.fullName}</h3>
+                <div className="flex min-w-0 flex-1 gap-4">
+                <Avatar name={a.fullName} size="lg" className="hidden sm:grid" />
+                <div className="min-w-0">
+                  <h3 className="text-lg font-semibold text-slate-900">{a.fullName}</h3>
                   <p className="text-sm text-slate-500">{getService(a.serviceId)?.name} · {formatDate(a.date)} · <b className="text-slate-700">{a.time}</b></p>
                   <p className="mt-1 flex flex-wrap gap-x-4 text-sm text-slate-500">
                     <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" /> {a.phone}</span>
@@ -77,6 +70,7 @@ export default function DoctorAppointments() {
                   </p>
                   {a.notes && <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800"><b>Patient note:</b> {a.notes}</p>}
                   {a.feedback && <p className="mt-2 text-sm text-slate-500">Patient rating: <b className="text-amber-500">{a.feedback.rating}/5</b>{a.feedback.comment && ` — “${a.feedback.comment}”`}</p>}
+                </div>
                 </div>
                 <StatusBadge status={a.status} />
               </div>

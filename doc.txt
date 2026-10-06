@@ -1,0 +1,25 @@
+Both changes are in: admins and doctors land on their dashboard after login, and a notification bell appears in the navbar for everyone who is logged in. tsc and the build pass and the dev server compiles everything, but I haven't clicked through it in a browser. Please run the quick test below.
+
+Login goes to the dashboard first
+
+On /login, admins always go to /admin and doctors always go to /doctor, even if they were sent to login from a booking page. Patients still return to where they were.
+Notification bell
+
+It is in the patient site header and in a new top bar on the admin and doctor pages. It has a red unread count, a dropdown list, "Mark all read", and a "You are all caught up" empty state.
+Clicking a notification marks it read and opens the related page.
+It is keyboard-friendly and labelled for screen readers, including the unread count.
+What each person gets notified about
+
+Who	Notified when
+Admin	A new booking needs approval, a patient reschedules (needs approval again), a patient cancels, or new patient feedback arrives
+Doctor	The same events, but only for their own patients
+Patient	The request was received, it was confirmed, the clinic cancelled it, the clinic changed the time, the visit was completed (with a link to leave feedback), or a reminder when the visit is within 24 hours
+Each bell shows only that person's notifications. A new notification also pops up as a toast if you are signed in, except for your own actions.
+
+The admin dashboard now shows an amber banner, "N bookings waiting for your approval", with a Review now link.
+
+Quick test: log in as patient@smile.com and book a visit. In another tab of the same browser, log in as admin@smile.com. The admin tab should show the bell count and a toast within a moment.
+
+Limit: notifications and bookings are stored in the browser (localStorage), so live updates work across tabs of the same browser only. Two different browsers or devices will not see each other's changes until there's a backend.
+
+The main changes are in NotificationContext.tsx, BookingContext.tsx and NotificationBell.tsx.
